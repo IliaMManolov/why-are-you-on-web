@@ -175,13 +175,6 @@ async function onSubmit(
 ): Promise<void> {
   if (!isFormValid(state)) return;
   await createSession(hostname, state.reason, state.duration!);
-
-  // Fire-and-forget social media post
-  const text = `[Why Are You On ${hostname}?] ${state.reason} (${state.duration} min)`;
-  browser.runtime.sendMessage({ type: 'POST_TO_SOCIAL', text }).catch(() => {
-    // Silently ignore — social posting is optional
-  });
-
   ui.remove();
 }
 

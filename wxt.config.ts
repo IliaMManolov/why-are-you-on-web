@@ -5,7 +5,7 @@ export default defineConfig({
   manifest: {
     name: 'Why Are You On?',
     description: 'Anti-procrastination extension — justify your visit before accessing blocked sites.',
-    permissions: ['storage', 'alarms', 'identity'],
+    permissions: ['storage', 'alarms'],
     icons: {
       16: '/icon/icon-16.png',
       32: '/icon/icon-32.png',
