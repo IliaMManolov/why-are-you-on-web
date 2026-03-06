@@ -19,7 +19,7 @@ export async function mountModal(
     zIndex: 2147483647,
     isolateEvents: ['keydown', 'keyup', 'keypress'],
     onMount(container) {
-      const state: FormState = { reason: '', duration: null };
+      const state: FormState = { reason: '', duration: null, mountedAt: Date.now() };
       const root = buildModal(hostname, state, () => {
         onSubmit(state, hostname, ui);
       });
@@ -118,6 +118,20 @@ function buildModal(
 
   // Initial render
   updateChecklist();
+
+  // Tick every second to update the delay countdown
+  const delayInterval = setInterval(() => {
+    updateChecklist();
+  }, 1000);
+
+  // Clean up interval when modal is removed
+  const observer = new MutationObserver(() => {
+    if (!backdrop.isConnected) {
+      clearInterval(delayInterval);
+      observer.disconnect();
+    }
+  });
+  observer.observe(backdrop.parentNode || backdrop, { childList: true });
 
   textarea.addEventListener('input', () => {
     state.reason = textarea.value;
