@@ -32,6 +32,9 @@ export async function mountModal(
       // Focus trap
       setupFocusTrap(root);
 
+      // Defend focus against host page scripts stealing it (e.g. YouTube consent dialog)
+      defendFocus(root, textarea!);
+
       return root;
     },
     onRemove(root) {
@@ -205,6 +208,22 @@ function setupFocusTrap(root: HTMLElement): void {
     }
     e.preventDefault();
   });
+}
+
+function defendFocus(root: HTMLElement, fallback: HTMLElement): void {
+  // When the host page steals focus, reclaim it.
+  // We listen on document because focusout from shadow DOM bubbles there.
+  document.addEventListener(
+    'focusin',
+    () => {
+      // If focus moved to something outside our shadow root, take it back
+      const shadowRoot = root.getRootNode() as ShadowRoot;
+      if (!shadowRoot.activeElement) {
+        fallback.focus();
+      }
+    },
+    true,
+  );
 }
 
 function el(
