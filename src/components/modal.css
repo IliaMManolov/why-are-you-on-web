@@ -1,0 +1,134 @@
+/* Styles injected into shadow root via cssInjectionMode: 'ui' */
+
+.wayro-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2147483647;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #1a1a1a;
+}
+
+.wayro-modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 480px;
+  width: 90vw;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.wayro-title {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.wayro-subtitle {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.wayro-domain {
+  color: #c00;
+  font-weight: 600;
+}
+
+.wayro-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #444;
+}
+
+.wayro-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.wayro-textarea:focus {
+  border-color: #4a90d9;
+}
+
+.wayro-counter {
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+  text-align: right;
+}
+
+.wayro-counter--error {
+  color: #c00;
+  font-weight: 600;
+}
+
+.wayro-duration-group {
+  margin-top: 20px;
+}
+
+.wayro-duration-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.wayro-duration {
+  flex: 1;
+  padding: 10px 0;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: #444;
+}
+
+.wayro-duration:hover {
+  border-color: #aaa;
+}
+
+.wayro-duration--selected {
+  border-color: #4a90d9;
+  background: #e8f0fe;
+  color: #1a56db;
+}
+
+.wayro-enter {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: #1a56db;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.wayro-enter:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.wayro-enter:not(:disabled):hover {
+  background: #1448b8;
+}
