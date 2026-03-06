@@ -1,5 +1,21 @@
 /* Styles injected into shadow root via cssInjectionMode: 'ui' */
 
+@keyframes wayro-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes wayro-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .wayro-backdrop {
   position: fixed;
   inset: 0;
@@ -10,6 +26,7 @@
   z-index: 2147483647;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #1a1a1a;
+  animation: wayro-backdrop-in 1s ease-out both;
 }
 
 .wayro-modal {
@@ -19,6 +36,7 @@
   max-width: 480px;
   width: 90vw;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: wayro-modal-in 1s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .wayro-title {
