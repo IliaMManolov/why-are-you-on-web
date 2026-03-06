@@ -1,4 +1,4 @@
-import { activeSessions, type Session } from './storage';
+import { activeSessions, sessionHistory, type Session } from './storage';
 
 function normalize(hostname: string): string {
   return hostname.toLowerCase().replace(/^www\./, '');
@@ -31,6 +31,10 @@ export async function createSession(
   // Remove any existing session for this domain
   const filtered = sessions.filter((s) => normalize(s.domain) !== session.domain);
   await activeSessions.setValue([...filtered, session]);
+
+  // Append to persistent history
+  const history = await sessionHistory.getValue();
+  await sessionHistory.setValue([...history, session]);
 
   return session;
 }

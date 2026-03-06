@@ -15,3 +15,7 @@ export const blockedDomains = storage.defineItem<string[]>('sync:blockedDomains'
 export const activeSessions = storage.defineItem<Session[]>('local:activeSessions', {
   fallback: [],
 });
+
+export const sessionHistory = storage.defineItem<Session[]>('local:sessionHistory', {
+  fallback: [],
+});

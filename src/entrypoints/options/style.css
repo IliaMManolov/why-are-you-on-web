@@ -114,3 +114,54 @@ h1 {
   padding: 32px 0;
   font-size: 14px;
 }
+
+/* Visit Log */
+
+.history-section {
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid #ddd;
+}
+
+.history-heading {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.history-section > .remove-btn {
+  margin-bottom: 16px;
+}
+
+.history-entry {
+  background: #fff;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.history-entry-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.history-domain {
+  font-size: 14px;
+  font-weight: 600;
+  color: #c00;
+}
+
+.history-meta {
+  font-size: 12px;
+  color: #888;
+}
+
+.history-reason {
+  font-size: 13px;
+  color: #444;
+  line-height: 1.4;
+  margin: 0;
+}

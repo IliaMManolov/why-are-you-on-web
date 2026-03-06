@@ -1,9 +1,15 @@
-import { blockedDomains } from '../../utils/storage';
+import { blockedDomains, sessionHistory, type Session } from '../../utils/storage';
 import { parseDomainInput } from '../../utils/domain-parsing';
 
 const app = document.getElementById('app')!;
 
-function render(domains: string[], error: string | null = null) {
+interface RenderState {
+  domains: string[];
+  history: Session[];
+  error: string | null;
+}
+
+function render(state: RenderState) {
   app.innerHTML = '';
 
   const container = document.createElement('div');
@@ -35,24 +41,24 @@ function render(domains: string[], error: string | null = null) {
   container.append(form);
 
   // Error message
-  if (error) {
+  if (state.error) {
     const errorEl = document.createElement('p');
     errorEl.className = 'error';
-    errorEl.textContent = error;
+    errorEl.textContent = state.error;
     container.append(errorEl);
   }
 
   async function addDomain() {
     const parsed = parseDomainInput(input.value);
     if (!parsed) {
-      render(domains, 'Invalid domain. Enter a domain like "reddit.com".');
+      render({ ...state, error: 'Invalid domain. Enter a domain like "reddit.com".' });
       return;
     }
-    if (domains.includes(parsed)) {
-      render(domains, `"${parsed}" is already in your list.`);
+    if (state.domains.includes(parsed)) {
+      render({ ...state, error: `"${parsed}" is already in your list.` });
       return;
     }
-    const updated = [...domains, parsed];
+    const updated = [...state.domains, parsed];
     await blockedDomains.setValue(updated);
   }
 
@@ -65,13 +71,13 @@ function render(domains: string[], error: string | null = null) {
   const list = document.createElement('ul');
   list.className = 'domain-list';
 
-  if (domains.length === 0) {
+  if (state.domains.length === 0) {
     const empty = document.createElement('li');
     empty.className = 'empty';
     empty.textContent = 'No blocked domains yet. Add one above.';
     list.append(empty);
   } else {
-    for (const domain of domains) {
+    for (const domain of state.domains) {
       const item = document.createElement('li');
       item.className = 'domain-item';
 
@@ -83,7 +89,7 @@ function render(domains: string[], error: string | null = null) {
       removeBtn.className = 'remove-btn';
       removeBtn.textContent = 'Remove';
       removeBtn.addEventListener('click', async () => {
-        const updated = domains.filter((d) => d !== domain);
+        const updated = state.domains.filter((d) => d !== domain);
         await blockedDomains.setValue(updated);
       });
 
@@ -93,6 +99,10 @@ function render(domains: string[], error: string | null = null) {
   }
 
   container.append(list);
+
+  // History section
+  container.append(buildHistorySection(state.history));
+
   app.append(container);
 
   // Re-focus input after render
@@ -100,8 +110,82 @@ function render(domains: string[], error: string | null = null) {
   newInput?.focus();
 }
 
-// Initial render
-blockedDomains.getValue().then((domains) => render(domains));
+function buildHistorySection(history: Session[]): HTMLElement {
+  const section = document.createElement('div');
+  section.className = 'history-section';
 
-// Re-render on storage changes
-blockedDomains.watch((domains) => render(domains));
+  const heading = document.createElement('h2');
+  heading.className = 'history-heading';
+  heading.textContent = 'Visit Log';
+  section.append(heading);
+
+  if (history.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'empty';
+    empty.textContent = 'No visits recorded yet.';
+    section.append(empty);
+    return section;
+  }
+
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'remove-btn';
+  clearBtn.textContent = 'Clear history';
+  clearBtn.addEventListener('click', async () => {
+    await sessionHistory.setValue([]);
+  });
+  section.append(clearBtn);
+
+  // Show newest first
+  const sorted = [...history].reverse();
+
+  for (const session of sorted) {
+    const entry = document.createElement('div');
+    entry.className = 'history-entry';
+
+    const header = document.createElement('div');
+    header.className = 'history-entry-header';
+
+    const domain = document.createElement('span');
+    domain.className = 'history-domain';
+    domain.textContent = session.domain;
+
+    const meta = document.createElement('span');
+    meta.className = 'history-meta';
+    const date = new Date(session.startedAt);
+    meta.textContent = `${date.toLocaleDateString()} ${date.toLocaleTimeString()} \u00B7 ${session.durationMinutes} min`;
+
+    header.append(domain, meta);
+
+    const reason = document.createElement('p');
+    reason.className = 'history-reason';
+    reason.textContent = session.reason;
+
+    entry.append(header, reason);
+    section.append(entry);
+  }
+
+  return section;
+}
+
+// --- Init ---
+
+let currentDomains: string[] = [];
+let currentHistory: Session[] = [];
+
+async function init() {
+  currentDomains = await blockedDomains.getValue();
+  currentHistory = await sessionHistory.getValue();
+  render({ domains: currentDomains, history: currentHistory, error: null });
+}
+
+blockedDomains.watch((domains) => {
+  currentDomains = domains;
+  render({ domains: currentDomains, history: currentHistory, error: null });
+});
+
+sessionHistory.watch((history) => {
+  currentHistory = history;
+  render({ domains: currentDomains, history: currentHistory, error: null });
+});
+
+init();
