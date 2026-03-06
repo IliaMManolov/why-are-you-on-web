@@ -1,26 +1,51 @@
 import { describe, it, expect } from 'vitest';
-import { getReasonError, isFormValid, MIN_REASON_LENGTH, MAX_REASON_LENGTH } from '../form-validation';
+import { getReasonError, isFormValid, getRequirements, MIN_REASON_LENGTH, MAX_REASON_LENGTH } from '../form-validation';
 
 describe('getReasonError', () => {
-  it('returns error for 139 chars', () => {
-    expect(getReasonError('a'.repeat(139))).not.toBeNull();
+  it('returns error for MIN-1 chars', () => {
+    expect(getReasonError('a'.repeat(MIN_REASON_LENGTH - 1))).not.toBeNull();
   });
 
-  it('returns null for exactly 140 chars', () => {
-    expect(getReasonError('a'.repeat(140))).toBeNull();
+  it('returns null for exactly MIN chars', () => {
+    expect(getReasonError('a'.repeat(MIN_REASON_LENGTH))).toBeNull();
   });
 
-  it('returns null for exactly 280 chars', () => {
-    expect(getReasonError('a'.repeat(280))).toBeNull();
+  it('returns null for exactly MAX chars', () => {
+    expect(getReasonError('a'.repeat(MAX_REASON_LENGTH))).toBeNull();
   });
 
-  it('returns error for 281 chars', () => {
-    expect(getReasonError('a'.repeat(281))).not.toBeNull();
+  it('returns error for MAX+1 chars', () => {
+    expect(getReasonError('a'.repeat(MAX_REASON_LENGTH + 1))).not.toBeNull();
   });
 
   it('includes current count in error', () => {
-    const error = getReasonError('a'.repeat(100));
-    expect(error).toContain('100');
+    const error = getReasonError('a'.repeat(10));
+    expect(error).toContain('10');
+  });
+});
+
+describe('getRequirements', () => {
+  it('returns chars requirement as unmet when too short', () => {
+    const reqs = getRequirements({ reason: 'short', duration: 5 });
+    const chars = reqs.find((r) => r.key === 'chars')!;
+    expect(chars.met).toBe(false);
+  });
+
+  it('returns chars requirement as met at MIN', () => {
+    const reqs = getRequirements({ reason: 'a'.repeat(MIN_REASON_LENGTH), duration: 5 });
+    const chars = reqs.find((r) => r.key === 'chars')!;
+    expect(chars.met).toBe(true);
+  });
+
+  it('returns duration requirement as unmet when null', () => {
+    const reqs = getRequirements({ reason: 'a'.repeat(MIN_REASON_LENGTH), duration: null });
+    const dur = reqs.find((r) => r.key === 'duration')!;
+    expect(dur.met).toBe(false);
+  });
+
+  it('returns all met for valid state', () => {
+    const reqs = getRequirements({ reason: 'a'.repeat(MIN_REASON_LENGTH), duration: 5 });
+    expect(reqs.every((r) => r.met)).toBe(true);
   });
 });
 

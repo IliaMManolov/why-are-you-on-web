@@ -64,16 +64,30 @@
   border-color: #4a90d9;
 }
 
-.wayro-counter {
-  font-size: 12px;
-  color: #888;
-  margin-top: 4px;
-  text-align: right;
+.wayro-checklist {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.wayro-counter--error {
-  color: #c00;
-  font-weight: 600;
+.wayro-check-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #999;
+  transition: color 0.15s;
+}
+
+.wayro-check-item--met {
+  color: #16a34a;
+}
+
+.wayro-check-icon {
+  font-size: 13px;
+  width: 16px;
+  text-align: center;
 }
 
 .wayro-duration-group {

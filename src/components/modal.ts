@@ -2,7 +2,7 @@ import type { ContentScriptContext } from 'wxt/utils/content-script-context';
 import { createSession } from '../utils/session-manager';
 import {
   isFormValid,
-  getReasonError,
+  getRequirements,
   ALLOWED_DURATIONS,
   MIN_REASON_LENGTH,
   MAX_REASON_LENGTH,
@@ -64,7 +64,8 @@ function buildModal(
   }) as HTMLTextAreaElement;
   textarea.setAttribute('maxlength', String(MAX_REASON_LENGTH));
 
-  const counter = el('div', { className: 'wayro-counter', textContent: `0/${MAX_REASON_LENGTH}` });
+  // Requirements checklist
+  const checklist = el('div', { className: 'wayro-checklist' });
 
   // Duration buttons
   const durationGroup = el('div', { className: 'wayro-duration-group' });
@@ -82,7 +83,7 @@ function buildModal(
       state.duration = d;
       durationButtons.forEach((b) => b.classList.remove('wayro-duration--selected'));
       btn.classList.add('wayro-duration--selected');
-      updateEnterButton();
+      updateChecklist();
     });
     durationButtons.push(btn);
     durationRow.append(btn);
@@ -97,27 +98,30 @@ function buildModal(
   }) as HTMLButtonElement;
   enterBtn.disabled = true;
 
-  function updateEnterButton() {
+  function updateChecklist() {
+    const reqs = getRequirements(state);
+    checklist.innerHTML = '';
+    for (const req of reqs) {
+      const item = el('div', {
+        className: `wayro-check-item ${req.met ? 'wayro-check-item--met' : ''}`,
+      });
+      const icon = el('span', {
+        className: 'wayro-check-icon',
+        textContent: req.met ? '\u2713' : '\u2717',
+      });
+      const text = el('span', { textContent: req.label });
+      item.append(icon, text);
+      checklist.append(item);
+    }
     enterBtn.disabled = !isFormValid(state);
   }
 
+  // Initial render
+  updateChecklist();
+
   textarea.addEventListener('input', () => {
     state.reason = textarea.value;
-    const len = textarea.value.length;
-    const error = getReasonError(textarea.value);
-
-    counter.textContent = `${len}/${MAX_REASON_LENGTH}`;
-    counter.className = error && len >= MIN_REASON_LENGTH
-      ? 'wayro-counter wayro-counter--error'
-      : len < MIN_REASON_LENGTH
-        ? 'wayro-counter'
-        : 'wayro-counter';
-
-    if (len > MAX_REASON_LENGTH) {
-      counter.className = 'wayro-counter wayro-counter--error';
-    }
-
-    updateEnterButton();
+    updateChecklist();
   });
 
   // Enter key submits (Shift+Enter for newlines)
@@ -134,7 +138,7 @@ function buildModal(
     }
   });
 
-  modal.append(title, subtitle, label, textarea, counter, durationGroup, enterBtn);
+  modal.append(title, subtitle, label, textarea, checklist, durationGroup, enterBtn);
   backdrop.append(modal);
 
   // Prevent clicking backdrop from doing anything on the host page
