@@ -1,5 +1,6 @@
 export const MIN_REASON_LENGTH = 30;
 export const MAX_REASON_LENGTH = 280;
+export const MIN_WORD_COUNT = 5;
 export const ALLOWED_DURATIONS = [1, 5, 15, 30] as const;
 
 export type AllowedDuration = (typeof ALLOWED_DURATIONS)[number];
@@ -15,12 +16,22 @@ export interface Requirement {
   met: boolean;
 }
 
+export function countWords(text: string): number {
+  return text.trim().split(/\s+/).filter((w) => w.length > 0).length;
+}
+
 export function getRequirements(state: FormState): Requirement[] {
+  const wordCount = countWords(state.reason);
   return [
     {
       key: 'chars',
       label: `At least ${MIN_REASON_LENGTH} characters (${state.reason.length}/${MIN_REASON_LENGTH})`,
       met: state.reason.length >= MIN_REASON_LENGTH,
+    },
+    {
+      key: 'words',
+      label: `At least ${MIN_WORD_COUNT} words (${wordCount}/${MIN_WORD_COUNT})`,
+      met: wordCount >= MIN_WORD_COUNT,
     },
     {
       key: 'max',

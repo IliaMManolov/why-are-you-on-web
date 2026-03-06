@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getReasonError, isFormValid, getRequirements, MIN_REASON_LENGTH, MAX_REASON_LENGTH } from '../form-validation';
+import { getReasonError, isFormValid, getRequirements, countWords, MIN_REASON_LENGTH, MAX_REASON_LENGTH } from '../form-validation';
 
 describe('getReasonError', () => {
   it('returns error for MIN-1 chars', () => {
@@ -24,6 +24,29 @@ describe('getReasonError', () => {
   });
 });
 
+describe('countWords', () => {
+  it('counts words separated by spaces', () => {
+    expect(countWords('one two three four five')).toBe(5);
+  });
+
+  it('handles multiple spaces', () => {
+    expect(countWords('one  two   three')).toBe(3);
+  });
+
+  it('handles leading/trailing whitespace', () => {
+    expect(countWords('  hello world  ')).toBe(2);
+  });
+
+  it('returns 0 for empty string', () => {
+    expect(countWords('')).toBe(0);
+    expect(countWords('   ')).toBe(0);
+  });
+
+  it('handles tabs and newlines', () => {
+    expect(countWords('one\ttwo\nthree')).toBe(3);
+  });
+});
+
 describe('getRequirements', () => {
   it('returns chars requirement as unmet when too short', () => {
     const reqs = getRequirements({ reason: 'short', duration: 5 });
@@ -43,14 +66,26 @@ describe('getRequirements', () => {
     expect(dur.met).toBe(false);
   });
 
-  it('returns all met for valid state', () => {
+  it('returns words requirement as unmet when too few words', () => {
     const reqs = getRequirements({ reason: 'a'.repeat(MIN_REASON_LENGTH), duration: 5 });
+    const words = reqs.find((r) => r.key === 'words')!;
+    expect(words.met).toBe(false);
+  });
+
+  it('returns words requirement as met with enough words', () => {
+    const reqs = getRequirements({ reason: 'one two three four five six seven', duration: 5 });
+    const words = reqs.find((r) => r.key === 'words')!;
+    expect(words.met).toBe(true);
+  });
+
+  it('returns all met for valid state', () => {
+    const reqs = getRequirements({ reason: 'I need to check this work thread now', duration: 5 });
     expect(reqs.every((r) => r.met)).toBe(true);
   });
 });
 
 describe('isFormValid', () => {
-  const validReason = 'a'.repeat(MIN_REASON_LENGTH);
+  const validReason = 'I need to check this work thread now';
 
   it('returns true when reason valid and duration selected', () => {
     expect(isFormValid({ reason: validReason, duration: 5 })).toBe(true);
